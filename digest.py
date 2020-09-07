@@ -3,37 +3,32 @@
 #
 # Author: Peter Wu <peter@lekensteyn.nl>
 # Licensed under the MIT license <http://opensource.org/licenses/MIT>
+# Original source: https://git.lekensteyn.nl/scripts/tree/digest.py
 
-from __future__ import print_function
-import hashlib
 import sys
+import hashlib
 from threading import Thread
-try:
-    from queue import Queue
-except:
-    # Python 2 compatibility
-    from Queue import Queue
+from queue import Queue
+
 
 def read_blocks(filename):
     if filename == '-':
-        f = sys.stdin
-        # Python 3 compat: read binary instead of unicode
-        if hasattr(f, 'buffer'):
-            f = f.buffer
+        f = sys.stdin.buffer  # read binary instead of unicode
     else:
         f = open(filename, 'rb')
     try:
         megabyte = 2 ** 20
-        while True:
-            data = f.read(megabyte)
-            if not data:
-                break
+        data = f.read(megabyte)
+        while len(data) > 0:
             yield data
+            data = f.read(megabyte)
     finally:
         f.close()
 
+
 class Hasher(object):
-    '''Calculate multiple hash digests for a piece of data.'''
+    """Calculate multiple hash digests for a piece of data"""
+
     def __init__(self, algos):
         self.algos = algos
         self._hashes = {}
@@ -44,15 +39,22 @@ class Hasher(object):
         for h in self._hashes:
             h.update(data)
 
+    def header(self):
+        """First element is the filename, then come the names of the algos"""
+
+        algos = list(self.algos)
+        algos.insert(0, 'filename')
+        return tuple(algos)
+
     def hexdigests(self):
-        '''Yields the algorithm and the calculated hex digest.'''
-        for algo in self.algos:
-            digest = self._hashes[algo].hexdigest()
-            yield algo, digest
+        """Returns the calculated hex digests"""
+
+        return (self._hashes[algo].hexdigest() for algo in self.algos)
+
 
 class MtHasher(Hasher):
-    # Queue size. Memory usage is this times block size (1M)
-    QUEUE_SIZE = 10
+    QUEUE_SIZE = 10  # Queue size. Memory usage is this times block size (1M)
+
     def __init__(self, algos):
         super(MtHasher, self).__init__(algos)
         self._queues = {}
@@ -66,41 +68,41 @@ class MtHasher(Hasher):
     def _queue_updater(self, algo):
         q = self._queues[algo]
         h = self._hashes[algo]
-        while True:
-            data = q.get()
-            # Treat an empty value as terminator
-            if not data:
-                break
+        data = q.get()
+        while len(data) > 0:  # Treat an empty value as terminator
             h.update(data)
+            data = q.get()
 
     def update(self, data):
-        if data:
+        if len(data) > 0:
             for q in self._queues.values():
                 q.put(data)
 
     def hexdigests(self):
-        # Wait until all calculations are done and yield the results in meantime
+        """Wait until all calculations are done and yield the results in meantime"""
+
         for algo in self.algos:
             q = self._queues[algo]
-            q.put(b'') # Terminate
+            q.put(b'')  # Terminate
             self._threads[algo].join()
             assert q.empty()
         return super(MtHasher, self).hexdigests()
 
-try:
-    supported_algos = hashlib.algorithms_guaranteed
-except:
-    supported_algos = ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512')
+
+# All guaranteed, except varable length hashes...
+algorithms_guaranteed = hashlib.algorithms_guaranteed - {'shake_128', 'shake_256'}
+
 
 def print_usage():
-    dgst_opts = ' '.join('[-{0}]'.format(algo) for algo in supported_algos)
-    print('Usage: python digest.py {} [FILE]...'.format(dgst_opts),
-          file=sys.stderr)
+    dgst_opts = ' '.join('[-{0}]'.format(algo) for algo in algorithms_guaranteed)
+    print(f'Usage: python {sys.argv[0]} {dgst_opts} [FILE]...', file=sys.stderr)
+
 
 def main(*argv):
     filenames = []
-    algos = []
+    algos = set()
 
+    # TODO argparse
     if any(help_arg in argv for help_arg in ('-h', '--help')):
         print_usage()
         return 1
@@ -108,38 +110,33 @@ def main(*argv):
     for arg in argv:
         if arg.startswith('-') and arg != '-':
             algo = arg.lstrip('-')  # Strip leading '-'
-            if algo in supported_algos:
-                # Preserve ordering, ignore duplicates
-                if not algo in algos:
-                    algos.append(algo)
+            if algo in algorithms_guaranteed:  # Preserve ordering, ignore duplicates
+                algos.add(algo)
             else:
                 print('Unsupported algo:', algo, file=sys.stderr)
         else:
             filenames.append(arg)
 
-    if not algos:
+    if len(algos) == 0:
         print('Missing digest!', file=sys.stderr)
         print_usage()
         return 1
 
-    # Assume stdin if no file is given
-    if not filenames:
-        filenames.append('-')
+    if len(filenames) == 0:
+        filenames.append('-')  # Assume stdin if no file is given
 
-    # Calculate digest(s) for each file
-    for filename in filenames:
+    for filename in filenames:  # Calculate digest(s) for each file
         hasher = MtHasher(algos)
-
-        # Try to read the file and update the hash states
-        try:
+        try:  # Try to read the file and update the hash states
             for data in read_blocks(filename):
                 hasher.update(data)
         except OSError as e:
-            print('digest: {0}: {1}'.format(filename, e.strerror))
+            print('digest: ', filename, ': ', e.strerror, sep='')
             continue
 
-        for algo, digest in hasher.hexdigests():
-            print('{0}  {1}'.format(digest, filename))
+        print(*hasher.header())
+        print(filename, *hasher.hexdigests(), sep='\t')
+
 
 if __name__ == '__main__':
     sys.exit(main(*sys.argv[1:]))
