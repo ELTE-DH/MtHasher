@@ -11,9 +11,11 @@ import hashlib
 from io import BufferedReader, BytesIO
 from threading import Thread
 from queue import Queue
-from argparse import ArgumentParser, FileType
+
 
 # All guaranteed, except variable length hashes...
+from src.multihash.__main__ import main
+
 ALGORITHMS_GUARANTEED = tuple(sorted(hashlib.algorithms_guaranteed - {'shake_128', 'shake_256'}))
 
 
@@ -142,34 +144,3 @@ class MtHasher(Hasher):
         """Init the threads and calls Hasher.hash_file() for the hashing"""
         self._init_threads()
         return super(MtHasher, self).hash_file(filename_or_bytestream)
-
-
-def parse_args():
-    parser = ArgumentParser(description='Calculate one or more hashes for one or more files, one algo/thread')
-    algo_group = parser.add_argument_group('Available hash algorithms')
-    for algo in ALGORITHMS_GUARANTEED:
-        algo_group.add_argument(f'--{algo}', help=f'{algo} hash algorithm', action='store_true', default=False)
-    parser.add_argument('-i', '--input', dest='input_files', nargs='+', default=['-'],
-                        help='Input files instead of STDIN (STDIN is denoted with -)', metavar='FILES')
-    parser.add_argument('-o', '--output', dest='output_stream',  type=FileType('w'), default=sys.stdout,
-                        help='Use output file instead of STDOUT', metavar='FILE')
-
-    opts = vars(parser.parse_args())
-    algos = tuple(algo for algo in ALGORITHMS_GUARANTEED if opts[algo])
-    if len(algos) == 0:
-        parser.print_help(sys.stderr)
-        exit(2)
-
-    return algos, tuple(opts['input_files']), opts['output_stream']
-
-
-def main():
-    algos, filenames, output_stream = parse_args()
-    hasher = MtHasher(algos)
-    for output_line in hasher.hash_multiple_files(filenames):
-        print(*output_line, sep='\t', file=output_stream)
-    output_stream.close()
-
-
-if __name__ == '__main__':
-    main()
