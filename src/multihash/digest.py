@@ -14,8 +14,6 @@ from queue import Queue
 
 
 # All guaranteed, except variable length hashes...
-from src.multihash.__main__ import main
-
 ALGORITHMS_GUARANTEED = tuple(sorted(hashlib.algorithms_guaranteed - {'shake_128', 'shake_256'}))
 
 

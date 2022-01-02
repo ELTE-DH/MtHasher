@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "wac-multihash"
+name = "multihash"
 version = "2.0.1"
 description = "Calculate multiple hash digests for a piece of data in parallel, one algo/thread."
 readme = "README.md"
@@ -14,12 +14,13 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+
 packages = [
     { include = "multihash", from = "src" },
 ]
 
 [tool.poetry.scripts]
-wac-multihash = "wac-multihash.__main__:entrypoint"
+multihash = "multihash.__main__:entrypoint"
 
 [tool.poetry.dependencies]
 python = "^3.8"
