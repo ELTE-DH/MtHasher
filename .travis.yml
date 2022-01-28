@@ -22,7 +22,7 @@ deploy:
     file_glob: true
     file: dist/*
     on:
-        repo: ELTE-DH/mthasher
+        repo: ELTE-DH/MtHasher
         branch: master
         tags: true
         condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
@@ -31,7 +31,7 @@ deploy:
     # Upload to PyPi with poetry (create a token and store it in travis-ci as PYPI_TOKEN environment variable)
     script: make upload
     on:
-        repo: ELTE-DH/mthasher
+        repo: ELTE-DH/MtHasher
         branch: master
         tags: true
         condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
