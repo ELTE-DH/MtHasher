@@ -6,7 +6,7 @@ GREEN := $(shell tput setaf 2)
 NOCOLOR := $(shell tput sgr0)
 
 # Module specific parameters
-MODULE := multihash
+MODULE := mthasher
 
 # These targets do not show as possible target with bash completion
 __extra-deps:
@@ -60,7 +60,7 @@ test:
 .PHONY: test
 
 clean: __clean-extra-deps
-	@rm -rf dist/ build/ $(MODULE).egg-info/ $$(poetry env info -p)
+	@rm -rf dist/ .pytest_cache/ $$(poetry env info -p)
 .PHONY: clean
 
 # Do actual release with new version. Originally from: https://github.com/mittelholcz/contextfun
@@ -81,15 +81,15 @@ __release:
 		(echo -e "$(RED)Do not call this target!\nUse 'release-major', 'release-minor' or 'release-patch'!$(NOCOLOR)"; \
 		 exit 1)
 	@[[ -z $$(git status --porcelain) ]] || (echo "$(RED)Working dir is dirty!$(NOCOLOR)"; exit 1)
-	# Update dependencies before buiding and testing (closest to clean install)
+	@# Update dependencies before buiding and testing (closest to clean install)
 	@poetry update
-	# poetry version will modify pyproject.toml only. The other steps must be done manually.
+	@# poetry version will modify pyproject.toml only. The other steps must be done manually.
 	@poetry version $(BUMP)
-	# Add modified files to git before commit
+	@# Add modified files to git before commit
 	@git add pyproject.toml poetry.lock
-	# Clean install with (built package) and test
+	@# Clean install with (built package) and test
 	@make all
-	# Create release commit and git tag
+	@# Create release commit and git tag
 	@make -S __commit_to_origin NEWVER=$$(poetry run python src/$(MODULE)/version.py)
 .PHONY: __release
 
@@ -99,7 +99,7 @@ __commit_to_origin:
 		 exit 1)
 	@echo "NEW VERSION: $(NEWVER)"
 	@git commit -m "Release $(NEWVER)"
-	@git tag -a "v$(NEWVER)" -m "Release $(NEWVER)"
+	@git tag -a "v$(NEWVER)" -m "Release v$(NEWVER)"
 	@git push
 	@git push --tags
 .PHONY: __commit_to_origin

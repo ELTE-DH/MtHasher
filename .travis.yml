@@ -16,22 +16,22 @@ script:
   - make install test
 deploy:
   - provider: releases
-    cleanup: false
+    skip_cleanup: true
     # Create a personal access token and store it in travis-ci as an environment variable
-    token: $GITHUB_TOKEN
+    api_key: $GITHUB_TOKEN
     file_glob: true
     file: dist/*
     on:
-        repo: ELTE-DH/multihash
+        repo: ELTE-DH/mthasher
         branch: master
         tags: true
         condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
   - provider: script
-    cleanup: false
+    skip_cleanup: true
     # Upload to PyPi with poetry (create a token and store it in travis-ci as PYPI_TOKEN environment variable)
     script: make upload
     on:
-        repo: ELTE-DH/multihash
+        repo: ELTE-DH/mthasher
         branch: master
         tags: true
         condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$

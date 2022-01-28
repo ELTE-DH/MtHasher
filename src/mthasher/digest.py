@@ -4,7 +4,7 @@
 # Original Author: Peter Wu <peter@lekensteyn.nl>
 # Licensed under the MIT license <http://opensource.org/licenses/MIT>
 # Original source: https://git.lekensteyn.nl/scripts/tree/digest.py
-# This version of the code is available at: https://github.com/ELTE-DH/multihash/
+# This version of the code is available at: https://github.com/ELTE-DH/mthasher/
 
 import sys
 import hashlib

@@ -5,7 +5,7 @@ from pathlib import Path
 # from pprint import pprint
 # import pytest
 
-from multihash import entrypoint
+from mthasher import entrypoint
 
 
 def get_pairs():

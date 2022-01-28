@@ -1,4 +1,4 @@
-# Multihash
+# MtHasher
 
 Calculate multiple hash digests for a piece of data in parallel, one algo/thread.
 
@@ -11,7 +11,7 @@ Based on the code of Peter Wu <peter@lekensteyn.nl> (https://git.lekensteyn.nl/s
 Add data over STDIN and/or as arguments and select the desired algorithms:
 
 ```bash
-cat data.txt | python3 digest.py -i data2.txt - --sha1 --sha256 -o checksums.txt
+cat data.txt | python3 -m mthasher -i data2.txt - --sha1 --sha256 -o checksums.txt
 ```
 
 At least one algorithm is mandatory and by default the script reads from STDIN and writes to STDOUT.
@@ -36,7 +36,7 @@ At least one algorithm is mandatory and by default the script reads from STDIN a
 ```python
 from io import BytesIO
 
-from digest import MtHasher
+from mthash import MtHasher
 
 hasher = MtHasher(('sha1', 'md5'))
 filename_header, sha1_header, md5_header = hasher.header

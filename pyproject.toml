@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "multihash"
+name = "mthasher"
 version = "2.0.1"
 description = "Calculate multiple hash digests for a piece of data in parallel, one algo/thread."
 readme = "README.md"
-repository = "https://github.com/ELTE-DH/multihash"
+repository = "https://github.com/ELTE-DH/mthasher"
 authors = ["dlazesz"]
 license = "MIT"
 # License and required Python version is automatically added
@@ -15,12 +15,8 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-packages = [
-    { include = "multihash", from = "src" },
-]
-
 [tool.poetry.scripts]
-multihash = "multihash.__main__:entrypoint"
+mthasher = "mthasher.__main__:entrypoint"
 
 [tool.poetry.dependencies]
 python = "^3.8"
