@@ -3,6 +3,5 @@
 
 from .digest import MtHasher
 from .version import __version__
-from .__main__ import entrypoint
 
-__all__ = [MtHasher.__name__, __version__, entrypoint]
+__all__ = [MtHasher.__name__, __version__]

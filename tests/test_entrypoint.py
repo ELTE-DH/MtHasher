@@ -5,7 +5,7 @@ from pathlib import Path
 # from pprint import pprint
 # import pytest
 
-from mthasher import entrypoint
+from mthasher.__main__ import entrypoint
 
 
 def get_pairs():

@@ -4,8 +4,7 @@
 import sys
 from argparse import ArgumentParser, FileType
 
-from . import MtHasher
-from .digest import ALGORITHMS_GUARANTEED
+from .digest import MtHasher, ALGORITHMS_GUARANTEED
 
 
 def parse_args():
@@ -27,13 +26,17 @@ def parse_args():
     return algos, tuple(opts['input_files']), opts['output_stream']
 
 
-def entrypoint():
-    algos, filenames, output_stream = parse_args()
+def entrypoint(algos, filenames, output_stream):
     hasher = MtHasher(algos)
     for output_line in hasher.hash_multiple_files(filenames):
         print(*output_line, sep='\t', file=output_stream)
     output_stream.close()
 
 
+def main():
+    algos, filenames, output_stream = parse_args()
+    entrypoint(algos, filenames, output_stream)
+
+
 if __name__ == '__main__':
-    entrypoint()
+    main()

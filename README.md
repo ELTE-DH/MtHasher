@@ -36,7 +36,7 @@ At least one algorithm is mandatory and by default the script reads from STDIN a
 ```python
 from io import BytesIO
 
-from mthash import MtHasher
+from mthasher import MtHasher
 
 hasher = MtHasher(('sha1', 'md5'))
 filename_header, sha1_header, md5_header = hasher.header
