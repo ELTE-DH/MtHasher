@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mthasher"
-version = "2.0.3"
+version = "2.0.4"
 description = "Calculate multiple hash digests for a piece of data in parallel, one algo/thread."
 readme = "README.md"
 repository = "https://github.com/ELTE-DH/mthasher"
