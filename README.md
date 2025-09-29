@@ -64,3 +64,11 @@ for filename, sha1_digest, md5_digest in hasher.hash_multiple_files(('data.txt',
 # License
 
 Licensed under the MIT license <http://opensource.org/licenses/MIT>
+
+# Acknowledgements
+
+The authors acknowledge the support of the National Laboratory for Digital
+Heritage. Project no. 2022-2.1.1-NL-2022-00009 has been implemented with the
+support provided by the Ministry of Culture and Innovation of Hungary from the
+National Research, Development and Innovation Fund, financed under the
+2022-2.1.1-NL funding scheme.
